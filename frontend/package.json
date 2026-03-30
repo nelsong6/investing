@@ -1,0 +1,13 @@
+{
+  "name": "investing-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Investing app frontend",
+  "scripts": {
+    "dev": "serve . -l 5500",
+    "start": "serve ."
+  },
+  "devDependencies": {
+    "serve": "^14.2.0"
+  }
+}
