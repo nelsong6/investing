@@ -36,6 +36,10 @@ jobs:
           chmod +x ./frontend/generate-config.sh
           ./frontend/generate-config.sh
 
+      - name: Generate version.json
+        run: |
+          echo "{\"sha\":\"${GITHUB_SHA::7}\",\"deployedAt\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}" > frontend/version.json
+
       - name: Get Static Web App Token
         id: swa-token
         run: |
