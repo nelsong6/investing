@@ -7,9 +7,17 @@
 # App Configuration and accept tokens against the union of audiences — no
 # cross-repo coordination needed to add or rotate a per-app registration.
 
+data "azuread_client_config" "current" {}
+
 resource "azuread_application" "microsoft_login" {
   display_name     = "investing - Social Login"
   sign_in_audience = "AzureADandPersonalMicrosoftAccount"
+
+  # The azuread provider does NOT auto-add the creating SP as an owner, so
+  # `Application.ReadWrite.OwnedBy` (the permission this repo's SP holds)
+  # returns 403 on any subsequent tofu update. Declare explicitly so owners
+  # match the tofu-run principal.
+  owners = [data.azuread_client_config.current.object_id]
 
   api {
     requested_access_token_version = 2
