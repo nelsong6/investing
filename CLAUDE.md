@@ -4,10 +4,10 @@ Portfolio analysis app at investing.romaine.life. Uses LLMs to analyze investmen
 
 ## Architecture
 
-- **Frontend**: Static HTML/CSS/JS on Azure Static Web App (Free tier)
-- **Backend**: Routes package (`@nelsong6/investing-routes`) mounted at `/investing` in the shared API
+- **Frontend**: Static HTML/CSS/JS served by the backend container
+- **Backend**: Express server on AKS, routes mounted at `/api/*` in `backend/routes.js`
 - **Database**: Cosmos DB `InvestingDB` with `portfolios` container (partition key: `/userId`)
-- **Auth**: MSAL.js Microsoft login, JWT via shared API
+- **Auth**: MSAL.js Microsoft login, JWT minted by this app's own `microsoft-routes.js`
 
 ## Data Ingestion
 
@@ -20,9 +20,9 @@ Portfolio data comes from Ameriprise. Two paths:
 - **Public**: allocation percentages, sector breakdown, symbols, relative performance
 - **Admin**: dollar amounts, share counts, cost basis, gain/loss, transaction history, CSV import
 
-## Routes Package (`packages/routes/`)
+## Routes (`backend/routes.js`)
 
-Published as `@nelsong6/investing-routes` to GitHub Packages. Receives `requireAuth`, `container`, and `jwtSecret` via dependency injection from the shared API.
+`createInvestingRoutes({ requireAuth, container, jwtSecret })` returns an Express Router wired under `/api/*`. Kept as a factory (rather than a top-level module) so the DB container, auth middleware, and JWT secret remain injectable and testable.
 
 ## Change Log
 
