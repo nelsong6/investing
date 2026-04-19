@@ -5,7 +5,6 @@ k8s
 packages
 node_modules
 backend/node_modules
-frontend/config.js
 frontend/version.json
 backend/.env
 backend/.env.local
