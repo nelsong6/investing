@@ -1,5 +1,5 @@
 // Per-app backend for investing.romaine.life. Serves the static frontend,
-// the investing route package under /api/*, and Microsoft OAuth under /auth/*
+// the investing routes under /api/*, and Microsoft OAuth under /auth/*
 // on the same origin. Replaces the shared `api` mount at /investing — the
 // investing app now owns its own container on AKS.
 //
@@ -15,7 +15,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { CosmosClient } from '@azure/cosmos';
 import { DefaultAzureCredential } from '@azure/identity';
-import { createInvestingRoutes } from '@nelsong6/investing-routes';
+import { createInvestingRoutes } from './routes.js';
 import { createRequireAuth } from './auth.js';
 import { createMicrosoftRoutes } from './microsoft-routes.js';
 import { fetchConfig } from './config.js';

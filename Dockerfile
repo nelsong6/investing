@@ -2,15 +2,8 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Install production deps using an ephemeral .npmrc with the build-time token
-# for GitHub Packages. @nelsong6/* packages are published there.
 COPY backend/package*.json backend/
-ARG NPM_TOKEN
-RUN cd backend && \
-    echo "//npm.pkg.github.com/:_authToken=${NPM_TOKEN}" > .npmrc && \
-    echo "@nelsong6:registry=https://npm.pkg.github.com" >> .npmrc && \
-    npm install --omit=dev && \
-    rm -f .npmrc
+RUN cd backend && npm install --omit=dev
 
 # Frontend is static files — copy as-is; the backend serves them from
 # /app/frontend via express.static at runtime.
