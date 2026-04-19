@@ -42,10 +42,10 @@ function showLogin() {
 }
 
 async function handleAuth(response) {
-  const res = await fetch(`${CONFIG.apiUrl}/auth/microsoft`, {
+  const res = await fetch('/auth/microsoft/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ idToken: response.idToken }),
+    body: JSON.stringify({ credential: response.idToken }),
   });
 
   if (!res.ok) return showLogin();
@@ -68,7 +68,7 @@ async function handleAuth(response) {
 }
 
 async function loadPortfolio() {
-  const res = await fetch(`${CONFIG.apiUrl}/api/portfolio`, {
+  const res = await fetch('/api/portfolio', {
     headers: { Authorization: `Bearer ${token}` },
   });
 
@@ -112,7 +112,7 @@ document.getElementById('csv-submit')?.addEventListener('click', async () => {
   const csv = document.getElementById('csv-input').value;
   if (!csv.trim()) return;
 
-  await fetch(`${CONFIG.apiUrl}/api/portfolio/import`, {
+  await fetch('/api/portfolio/import', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

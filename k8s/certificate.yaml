@@ -1,0 +1,15 @@
+# TLS cert for investing.romaine.life. cert-manager issues via Let's Encrypt
+# HTTP-01 using the shared Gateway (gateway:main, namespace:envoy-gateway-system).
+# The secret `investing-tls` is then referenced by a listener on that Gateway.
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: investing-tls
+  namespace: investing
+spec:
+  secretName: investing-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  dnsNames:
+    - investing.romaine.life

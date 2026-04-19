@@ -1,0 +1,31 @@
+# Per-app HTTPS listener. Attaches to the shared `main` Gateway in
+# envoy-gateway-system via cross-namespace XListenerSet — the shared Gateway
+# doesn't need to know about this app. Enabled by `gatewayAPI.enabled:
+# [XListenerSet]` in infra-bootstrap's envoy-gateway values and
+# `allowedListeners.namespaces.from: All` on the main Gateway.
+#
+# API group: gateway.networking.x-k8s.io/v1alpha1. The `X` prefix flags this
+# as experimental — expect a rename (likely to gateway.networking.k8s.io)
+# when the API graduates. Migration cost: apiVersion+group swap in this file.
+apiVersion: gateway.networking.x-k8s.io/v1alpha1
+kind: XListenerSet
+metadata:
+  name: investing
+  namespace: investing
+spec:
+  parentRef:
+    group: gateway.networking.k8s.io
+    kind: Gateway
+    name: main
+    namespace: envoy-gateway-system
+  listeners:
+    - name: https
+      protocol: HTTPS
+      port: 443
+      hostname: investing.romaine.life
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - group: ""
+            kind: Secret
+            name: investing-tls
