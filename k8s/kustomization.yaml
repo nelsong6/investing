@@ -11,4 +11,4 @@ resources:
 images:
 - name: romainecr.azurecr.io/investing
   newName: romainecr.azurecr.io/investing
-  newTag: 280717a
+  newTag: da8d374
