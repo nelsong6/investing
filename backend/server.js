@@ -1,11 +1,6 @@
 // Per-app backend for investing.romaine.life. Serves the static frontend,
-// the investing routes under /api/*, and Microsoft OAuth under /auth/*
-// on the same origin. Replaces the shared `api` mount at /investing — the
-// investing app now owns its own container on AKS.
-//
-// The Microsoft OAuth + JWT middleware are copied verbatim from the shared
-// api repo. A shared @nelsong6/ms-auth package can replace the copies once a
-// second app migration consumes the same code.
+// the investing routes under /api/*, and the auth.romaine.life delegation
+// exchange under /api/auth/* on the same origin.
 import 'dotenv/config';
 import express from 'express';
 import helmet from 'helmet';
@@ -17,7 +12,7 @@ import { CosmosClient } from '@azure/cosmos';
 import { DefaultAzureCredential } from '@azure/identity';
 import { createInvestingRoutes } from './routes.js';
 import { createRequireAuth } from './auth.js';
-import { createMicrosoftRoutes } from './microsoft-routes.js';
+import { createAuthRoutes } from './auth-routes.js';
 import { fetchConfig } from './config.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -52,22 +47,13 @@ async function start() {
     aadCredentials: credential,
   });
 
-  // Portfolio data lives in InvestingDB/portfolios, but account records
-  // (Microsoft OIDC -> JWT exchange) still go to WorkoutTrackerDB/workouts
-  // to match the shared api's behavior. Consolidate when convenient.
   const portfoliosContainer = cosmosClient.database('InvestingDB').container('portfolios');
-  const accountContainer = cosmosClient.database('WorkoutTrackerDB').container('workouts');
 
   const requireAuth = createRequireAuth({ jwtSecret: config.jwtSigningSecret });
-  const msAuth = createMicrosoftRoutes({
-    jwtSecret: config.jwtSigningSecret,
-    microsoftClientIds: config.microsoftClientIds,
-    accountContainer,
-  });
 
   // Order matters: API + auth routes must win over static before the SPA
   // fallback swallows anything unmatched.
-  app.use(msAuth);
+  app.use(createAuthRoutes({ jwtSecret: config.jwtSigningSecret, requireAuth }));
   app.use(createInvestingRoutes({
     requireAuth,
     container: portfoliosContainer,

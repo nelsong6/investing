@@ -12,8 +12,3 @@ output "cosmos_db_container_name" {
   value       = azurerm_cosmosdb_sql_container.portfolios.name
   description = "Cosmos DB container name for portfolio data"
 }
-
-output "app_config_prefix" {
-  value       = local.front_app_dns_name
-  description = "App Configuration key prefix"
-}

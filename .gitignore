@@ -2,3 +2,6 @@ frontend/config.js
 frontend/.env
 frontend/node_modules/
 local-env-files/
+
+backend/node_modules/
+packages/
