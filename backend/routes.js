@@ -4,10 +4,9 @@ import { Router } from 'express';
  * @param {{
  *   requireAuth: Function,
  *   container: import('@azure/cosmos').Container,
- *   jwtSecret: string,
  * }} opts
  */
-export function createInvestingRoutes({ requireAuth, container, jwtSecret }) {
+export function createInvestingRoutes({ requireAuth, container }) {
   const router = Router();
 
   router.get('/health', (req, res) => {

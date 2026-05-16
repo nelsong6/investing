@@ -1,6 +1,5 @@
-import { bootstrapAuth, startLogin, logout, getStoredToken } from './auth.js';
+import { bootstrapAuth, startLogin, logout } from './auth.js';
 
-let token = null;
 let isAdmin = false;
 
 async function init() {
@@ -8,7 +7,6 @@ async function init() {
 
   const user = await bootstrapAuth();
   if (user) {
-    token = getStoredToken();
     onSignedIn(user);
   }
 }
@@ -28,12 +26,9 @@ function onSignedIn(user) {
 }
 
 async function loadPortfolio() {
-  const res = await fetch('/api/portfolio', {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-
+  // .romaine.life session cookie auto-attaches via credentials: 'include'.
+  const res = await fetch('/api/portfolio', { credentials: 'include' });
   if (!res.ok) return;
-
   const data = await res.json();
   renderHoldings(data.holdings || []);
 }
@@ -71,10 +66,8 @@ document.getElementById('csv-submit')?.addEventListener('click', async () => {
 
   await fetch('/api/portfolio/import', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ csv }),
   });
 

@@ -16,7 +16,7 @@ Release/deploy workflows are the only path that publishes images.
 - **Frontend**: Static HTML/CSS/JS served by the backend container
 - **Backend**: Express server on AKS, routes mounted at `/api/*` in `backend/routes.js`
 - **Database**: Cosmos DB `InvestingDB` with `portfolios` container (partition key: `/userId`)
-- **Auth**: MSAL.js Microsoft login, JWT minted by this app's own `microsoft-routes.js`
+- **Auth**: sessions delegated to **auth.romaine.life**. The `.romaine.life` session cookie auto-attaches on every request; backend forwards it to `auth.romaine.life/api/auth/get-session` and gates on the role claim (cached 60s). No per-app JWT minting, no localStorage tokens.
 
 ## Data Ingestion
 
@@ -31,7 +31,7 @@ Portfolio data comes from Ameriprise. Two paths:
 
 ## Routes (`backend/routes.js`)
 
-`createInvestingRoutes({ requireAuth, container, jwtSecret })` returns an Express Router wired under `/api/*`. Kept as a factory (rather than a top-level module) so the DB container, auth middleware, and JWT secret remain injectable and testable.
+`createInvestingRoutes({ requireAuth, container })` returns an Express Router wired under `/api/*`. Kept as a factory (rather than a top-level module) so the DB container and auth middleware remain injectable and testable.
 
 ## Change Log
 

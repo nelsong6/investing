@@ -2,10 +2,12 @@
 # infra-shared-identity (overbroad RBAC across all apps' data planes).
 # Scoped to only what backend/config.js + server.js actually call:
 #   - Cosmos data on dbs/InvestingDB (the only DB the pod queries)
-#   - KV Secrets User on the single secret (investing-jwt-signing-secret)
 #   - App Configuration Data Reader at store level — config.js reads
 #     `investing/cosmos_db_endpoint` from there.
-# Pattern mirrors kill-me/tofu/identity.tf and glimmung/tofu/identity.tf.
+#
+# No Key Vault grant: sessions are delegated to auth.romaine.life via the
+# .romaine.life cookie. This pod signs nothing locally and needs no
+# signing secret.
 
 data "azurerm_resource_group" "infra" {
   name = local.infra.resource_group_name
@@ -27,12 +29,6 @@ resource "azurerm_cosmosdb_sql_role_assignment" "investing_cosmos" {
   role_definition_id  = "${local.infra.cosmos_db_account_id}/sqlRoleDefinitions/00000000-0000-0000-0000-000000000002"
   principal_id        = azurerm_user_assigned_identity.investing.principal_id
   scope               = "${local.infra.cosmos_db_account_id}/dbs/${azurerm_cosmosdb_sql_database.investing.name}"
-}
-
-resource "azurerm_role_assignment" "investing_kv_jwt_secret" {
-  scope                = "${data.azurerm_key_vault.main.id}/secrets/investing-jwt-signing-secret"
-  role_definition_name = "Key Vault Secrets User"
-  principal_id         = azurerm_user_assigned_identity.investing.principal_id
 }
 
 resource "azurerm_role_assignment" "investing_appconfig" {
