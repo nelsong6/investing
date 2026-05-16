@@ -2,10 +2,9 @@
 # infra-shared-identity (overbroad RBAC across all apps' data planes).
 # Scoped to only what backend/config.js + server.js actually call:
 #   - Cosmos data on dbs/InvestingDB (the only DB the pod queries)
-#   - KV Secrets User on the single secret (api-jwt-signing-secret)
-#   - App Configuration Data Reader at store level — needed because
-#     config.js calls listConfigurationSettings() to enumerate every
-#     `*/microsoft_oauth_client_id` registration.
+#   - KV Secrets User on the single secret (investing-jwt-signing-secret)
+#   - App Configuration Data Reader at store level — config.js reads
+#     `investing/cosmos_db_endpoint` from there.
 # Pattern mirrors kill-me/tofu/identity.tf and glimmung/tofu/identity.tf.
 
 data "azurerm_resource_group" "infra" {
@@ -31,7 +30,7 @@ resource "azurerm_cosmosdb_sql_role_assignment" "investing_cosmos" {
 }
 
 resource "azurerm_role_assignment" "investing_kv_jwt_secret" {
-  scope                = "${data.azurerm_key_vault.main.id}/secrets/api-jwt-signing-secret"
+  scope                = "${data.azurerm_key_vault.main.id}/secrets/investing-jwt-signing-secret"
   role_definition_name = "Key Vault Secrets User"
   principal_id         = azurerm_user_assigned_identity.investing.principal_id
 }

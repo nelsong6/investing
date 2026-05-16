@@ -49,13 +49,6 @@ jobs:
       - name: Set up Buildx
         uses: docker/setup-buildx-action@v4
 
-      - name: Generate frontend/config.js
-        env:
-          MICROSOFT_CLIENT_ID: docker-build-check
-        run: |
-          chmod +x ./frontend/generate-config.sh
-          ./frontend/generate-config.sh
-
       - name: Build image without pushing
         uses: docker/build-push-action@v6
         with:

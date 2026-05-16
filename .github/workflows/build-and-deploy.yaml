@@ -37,19 +37,6 @@ jobs:
           tenant-id: ${{ vars.ARM_TENANT_ID }}
           subscription-id: ${{ vars.ARM_SUBSCRIPTION_ID }}
 
-      - name: Generate frontend/config.js
-        # MICROSOFT_CLIENT_ID is owned by this repo's tofu (oauth.tf) and
-        # published to App Configuration as investing/microsoft_oauth_client_id.
-        # Fetched here so the source of truth is the tofu-managed value.
-        run: |
-          MICROSOFT_CLIENT_ID=$(az appconfig kv show \
-            --name infra-appconfig \
-            --key investing/microsoft_oauth_client_id \
-            --query value -o tsv)
-          export MICROSOFT_CLIENT_ID
-          chmod +x ./frontend/generate-config.sh
-          ./frontend/generate-config.sh
-
       - name: ACR login
         run: az acr login --name romainecr
 

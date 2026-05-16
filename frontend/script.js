@@ -1,62 +1,22 @@
-import { CONFIG } from './config.js';
+import { bootstrapAuth, startLogin, logout, getStoredToken } from './auth.js';
 
-const msalConfig = {
-  auth: {
-    clientId: CONFIG.microsoftClientId,
-    authority: 'https://login.microsoftonline.com/consumers',
-    redirectUri: window.location.origin,
-  },
-};
-
-let msalInstance;
 let token = null;
 let isAdmin = false;
 
 async function init() {
-  msalInstance = new msal.PublicClientApplication(msalConfig);
-  await msalInstance.initialize();
+  document.getElementById('user-bar').classList.remove('hidden');
 
-  const response = await msalInstance.handleRedirectPromise();
-  if (response) {
-    await handleAuth(response);
-  }
-
-  const accounts = msalInstance.getAllAccounts();
-  if (accounts.length > 0) {
-    try {
-      const silentResponse = await msalInstance.acquireTokenSilent({
-        scopes: ['openid', 'profile', 'email'],
-        account: accounts[0],
-      });
-      await handleAuth(silentResponse);
-    } catch {
-      showLogin();
-    }
-  } else {
-    showLogin();
+  const user = await bootstrapAuth();
+  if (user) {
+    token = getStoredToken();
+    onSignedIn(user);
   }
 }
 
-function showLogin() {
-  document.getElementById('user-bar').classList.remove('hidden');
-}
-
-async function handleAuth(response) {
-  const res = await fetch('/auth/microsoft/login', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ credential: response.idToken }),
-  });
-
-  if (!res.ok) return showLogin();
-
-  const data = await res.json();
-  token = data.token;
-  isAdmin = data.user?.role === 'admin';
-
-  document.getElementById('user-bar').classList.remove('hidden');
+function onSignedIn(user) {
+  isAdmin = user.role === 'admin';
   document.getElementById('microsoft-login-btn').classList.add('hidden');
-  document.getElementById('user-email').textContent = data.user?.email || '';
+  document.getElementById('user-email').textContent = user.email || '';
   document.getElementById('logout-btn').classList.remove('hidden');
   document.getElementById('app').classList.remove('hidden');
 
@@ -64,7 +24,7 @@ async function handleAuth(response) {
     document.getElementById('admin-panel').classList.remove('hidden');
   }
 
-  await loadPortfolio();
+  loadPortfolio();
 }
 
 async function loadPortfolio() {
@@ -94,14 +54,11 @@ function renderHoldings(holdings) {
 }
 
 document.getElementById('microsoft-login-btn').addEventListener('click', () => {
-  msalInstance.loginRedirect({
-    scopes: ['openid', 'profile', 'email'],
-    prompt: 'select_account',
-  });
+  startLogin();
 });
 
-document.getElementById('logout-btn').addEventListener('click', () => {
-  msalInstance.logoutRedirect();
+document.getElementById('logout-btn').addEventListener('click', async () => {
+  await logout();
 });
 
 document.getElementById('import-btn')?.addEventListener('click', () => {
