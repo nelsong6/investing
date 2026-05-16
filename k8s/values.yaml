@@ -2,4 +2,4 @@
 # push to main (via `sed` on this file).
 image:
   repository: romainecr.azurecr.io/investing
-  tag: 7cb356a
+  tag: 1e7d0a4
